@@ -1,5 +1,8 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "bdeploy": "node ../bdeploy/cli.js"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-verify": "^2.0.13",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
