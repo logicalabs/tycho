@@ -1,5 +1,5 @@
 const path = require("path");
-const {CONTRACTS} = require("./paths");
+const {CONTRACTS, EXECUTION} = require("./paths");
 
 const NODE_MODULES = path.join(CONTRACTS, "node_modules");
 if (!module.paths.includes(NODE_MODULES)) {
@@ -15,9 +15,9 @@ function loadEthers() {
 
 function loadDotenv() {
     try {
-        require(path.join(NODE_MODULES, "dotenv")).config({
-            path: path.join(CONTRACTS, ".env"),
-        });
+        const dotenv = require(path.join(NODE_MODULES, "dotenv"));
+        dotenv.config({path: path.join(EXECUTION, ".env")});
+        dotenv.config({path: path.join(CONTRACTS, ".env")});
     } catch (_) {
         // optional
     }

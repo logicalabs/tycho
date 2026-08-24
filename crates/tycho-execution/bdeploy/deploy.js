@@ -1,6 +1,7 @@
 const {CREATE2_FACTORY} = require("./paths");
 const {loadEthers} = require("./deps");
-const {isEmptyCode, codeHash} = require("./compare");
+const {isEmptyCode, codeHash, waitForCode} = require("./compare");
+const {feeOverrides} = require("./gas");
 
 async function assertCreate2Factory(provider, chainId) {
     const code = await provider.getCode(CREATE2_FACTORY);
@@ -28,25 +29,30 @@ async function create2Deploy({wallet, initcode, salt, dryRun}) {
     if (dryRun) {
         return {address: predicted, txHash: null};
     }
-
+    const fees = await feeOverrides(wallet.provider);
     const txReq = {
         to: CREATE2_FACTORY,
         data: ethers.utils.concat([salt, initcode]),
+        // Skip eth_estimateGas: the RPC multiplexer fans out and can hang
+        // indefinitely on large CREATE2 initcode.
+        gasLimit: 8_000_000,
+        ...fees,
     };
-    try {
-        const gas = await wallet.estimateGas(txReq);
-        txReq.gasLimit = gas.mul(130).div(100);
-    } catch (_) {
-        txReq.gasLimit = 8_000_000;
-    }
 
     const tx = await wallet.sendTransaction(txReq);
-    await tx.wait();
-
-    const code = await wallet.provider.getCode(predicted);
-    if (isEmptyCode(code)) {
-        throw new Error(`CREATE2 reported success but ${predicted} has no code`);
+    const receipt = await wallet.provider.waitForTransaction(
+        tx.hash,
+        1,
+        180_000
+    );
+    if (!receipt) {
+        throw new Error(`timeout waiting for CREATE2 ${tx.hash}`);
     }
+    if (receipt.status === 0) {
+        throw new Error(`CREATE2 tx reverted: ${tx.hash}`);
+    }
+
+    const code = await waitForCode(wallet.provider, predicted);
     return {address: predicted, txHash: tx.hash, runtimeCodeHash: codeHash(code)};
 }
 

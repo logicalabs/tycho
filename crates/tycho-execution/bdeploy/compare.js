@@ -5,6 +5,27 @@ function isEmptyCode(code) {
     return !code || code === "0x" || code === "0x0";
 }
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForCode(provider, address) {
+    await sleep(2000);
+    let last = "0x";
+    for (let attempt = 0; attempt <= 10; attempt++) {
+        if (attempt > 0) {
+            await sleep(attempt * 1000);
+        }
+        last = await provider.getCode(address);
+        if (!isEmptyCode(last)) {
+            return last;
+        }
+    }
+    throw new Error(
+        `CREATE2 reported success but ${address} has no code after 2s + 10 retries`
+    );
+}
+
 function saltFor(contractName, args) {
     const ethers = loadEthers();
     const normalized = args.map((arg) => {
@@ -67,6 +88,7 @@ async function decide({provider, initcode, salt, recordedAddr}) {
 
 module.exports = {
     isEmptyCode,
+    waitForCode,
     saltFor,
     predictedAddress,
     codeHash,

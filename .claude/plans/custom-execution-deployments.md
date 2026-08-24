@@ -1,10 +1,19 @@
 # bdeploy — plan, milestones, and handoff
 
-**Status:** implementation written, **not verified**. Last commit: `223fce4c6 WIP - custom deployer`.
+**Status:** milestones 1–6 done. **Milestone 7 blocked on `PRIVATE_KEY`.**
 
-**Stop reason:** `npm install` in `crates/tycho-execution/contracts/` was interrupted so work can continue as a non-root user. `contracts/node_modules` was missing (no `ethers`). Overlay `forge build` never ran. No dry-run or live RPC test.
+Last implementation commit: `223fce4c6 WIP - custom deployer` (plus `dd4f25cca WIP status` on this checkout). Uncommitted this session: dry-run reporting fix, `setExecutors` dry-run when router missing, forge PATH fallback, `latest.mapping.js` gitignore.
 
-Next session: pick up at **Milestone 4**.
+**Stop reason:** quarantined user `quartycho` has no `PRIVATE_KEY` / `.env`. RPC multiplexer is live (`localhost:2424/1` chainId 1, `/8453` chainId 8453). CREATE2 factory and Permit2 both present on chain 1. First ethereum live run would send **25 txs** (24 CREATE2 + `setExecutors`).
+
+Next session: pick up at **Milestone 7**. Need `export PRIVATE_KEY=...` (or `crates/tycho-execution/contracts/.env`). Then:
+
+```bash
+export PATH="$HOME/.foundry/bin:$PATH"
+node crates/tycho-execution/bdeploy/cli.js --chains 1
+# second run must print: All chains up to date. No transactions sent.
+# then batch: --chains 1,8453,130
+```
 
 ---
 
@@ -41,7 +50,7 @@ Always emit a timestamped official-addr → `bdeployAddress` mapping, even if no
 8. **Dedupe by official address.** One UniswapV3Executor deploy serves `uniswap_v3` + `pancakeswap_v3`.
 9. **CREATE2** factory `0x4e59b44847b379578588920cA78FbF26c0B4956C`. Salt `id("bdeploy:<contract>:<json args>")` — **no network name**, so identical initcode lands at the same address on every chain (matches the user’s sample mapping).
 10. **Redeploy signal:** `eth_getCode` at predicted CREATE2 address, else recorded `bdeployAddress` vs compiled runtime (`eth_call` of initcode when constructor allows).
-11. **`setExecutors`:** query `executorsActivationTimestamp`; only pass addrs with timestamp 0. Covers “deployed last run, register failed”.
+11. **`setExecutors`:** query `executorsActivationTimestamp`; only pass addrs with timestamp 0. Covers “deployed last run, register failed”. Dry-run with no router code → would-register all unique executor addrs (do not skip).
 12. **Roles = signer** (`PRIVATE_KEY`). Do not use official `scripts/roles.json` (Tycho’s Safe). Direct EOA, no Safe.
 13. **Outputs:** `state.json` (machine), `out/<timestamp>.mapping.js` + `latest.mapping.js` + `bdeploy/latest.mapping.js`. `CUSTOM_TYCHO_ROUTER` is a **per-chain object**. FeeCalculator in state only. No explorer/Tenderly verify.
 14. **Official encoder JSON untouched.** Mapping file is the consumer deliverable.
@@ -67,7 +76,7 @@ crates/tycho-execution/bdeploy/
   mapping.js      JS artifact emitter
   state.js        state.json load/save
   state.json      {}  (empty; first live run fills it)
-  .gitignore      .overlay/, out/, caches
+  .gitignore      .overlay/, out/, latest.mapping.js, caches
   latest.mapping.js   written at runtime (not in git)
 
 .claude/plans/custom-execution-deployments.md   this file
@@ -77,7 +86,7 @@ Entry: `node crates/tycho-execution/bdeploy/cli.js --chains 1,8453,130`
 
 From contracts dir: `npm run bdeploy -- --chains 1 --dry-run`
 
-Needs: `PRIVATE_KEY` (unless `--dry-run`), `forge` on PATH, `contracts/node_modules` (`ethers`, `dotenv`), RPC multiplexer at `localhost:2424/<chainid>`.
+Needs: `PRIVATE_KEY` (unless `--dry-run`), `forge` on PATH (overlay also prepends `$HOME/.foundry/bin`), `contracts/node_modules` (`ethers`, `dotenv`), RPC multiplexer at `localhost:2424/<chainid>`.
 
 Per-chain order: FeeCalculator → executors → TychoRouterV3 (ctor needs calculator code) → `setExecutors`. Chains in `Promise.all`.
 
@@ -95,9 +104,7 @@ Architecture: overlay orchestrator, not a fork of official deploy scripts. Store
 
 All JS files listed above exist and are wired. `cli.js` is the full flow, not stubs.
 
-### 3. Overlay + inventory logic — done, **untested**
-
-Written:
+### 3. Overlay + inventory logic — done, verified this session
 
 - Copy `contracts/src` → `bdeploy/.overlay/src`, symlink `lib` + `interfaces`, copy `remappings.txt`
 - Replace `DELAY_EXECUTOR_ACTIVATION = 3 days` → `0 days` (throws if upstream string drifted)
@@ -106,46 +113,30 @@ Written:
 - Parse `deploy_protocols` via `Function()` on the object literal in `deploy-executors.js`
 - Group extra labels onto shared official addresses
 
-Never executed end-to-end.
+### 4. Local deps + unit checks — done
 
-### 4. Local deps + unit checks — **next (blocked on non-root + npm)**
+1. `npm install` in `crates/tycho-execution/contracts/` as user `quartycho` (938 packages). `node_modules/ethers` present.
+2. `chains.js` brace matching returns **8** chains: ethereum=1, base=8453, unichain=130, arbitrum=42161, bsc=56, polygon=137, plasma=9745, robinhood=4663.
+3. ethereum `uniswap_v2` also has `sushiswap_v2`; `uniswap_v3` also has `pancakeswap_v3`. polygon: `quickswap_v2` / `ramses_v3`.
+4. `prepareOverlay()`: Dispatcher `0 days`; executors + FeeCalculator + TychoRouterV3 have `bool private constant bdeploy`; `uniswap_x` removed.
 
-Interrupted here.
+### 5. Overlay compile — done
 
-1. As the restricted user, from `crates/tycho-execution/contracts/`: `npm install` (repo uses npm/`package-lock.json` here, not pnpm).
-2. Confirm `contracts/node_modules/ethers` exists.
-3. Run the sanity snippet below (inventory, chains, inject, mapping). The first chains parser (`[\s\S]*?` to first `},`) **failed**; current `chains.js` uses brace matching — confirm it returns 8 chains.
+Installed Foundry **v1.7.1** via foundryup into `$HOME/.foundry/bin` (was missing on this account). First `forge build` cloned missing `contracts/lib` submodules (working tree stayed clean). Compile ~10s after cache. `loadArtifact('UniswapV2Executor')` etc. return non-empty bytecode. Overlay `foundry.toml`: solc 0.8.33, cancun, via_ir, 1000 runs.
 
-```bash
-node -e "
-const {loadOfficialChainMap, resolveChains} = require('./crates/tycho-execution/bdeploy/chains');
-console.log(loadOfficialChainMap());
-console.log(resolveChains(['--chains','1,8453']));
-const {buildInventory} = require('./crates/tycho-execution/bdeploy/inventory');
-const inv = buildInventory('ethereum');
-console.log(inv.executors.find(e => e.labels.includes('uniswap_v2')));
-console.log(inv.executors.find(e => e.labels.includes('uniswap_v3')));
-"
-```
+`overlay.js` prepends `$HOME/.foundry/bin` to PATH so CLI works without a login shell.
 
-Expect: `uniswap_v2` group also has `sushiswap_v2`; `uniswap_v3` also has `pancakeswap_v3`.
-
-4. `prepareOverlay()` only (no forge): grep overlay `Dispatcher.sol` for `0 days` and an executor for `bool private constant bdeploy`.
-
-### 5. Overlay compile — not started
-
-`forge build` in `.overlay/` with viaIR + 1000 runs. TychoRouterV3 compile can take several minutes. Fix remappings/symlinks if forge errors. Then `loadArtifact('UniswapV2Executor')` etc.
-
-### 6. Dry-run against RPC — not started
+### 6. Dry-run against RPC — done
 
 ```bash
-export PRIVATE_KEY=...   # optional for dry-run
 node crates/tycho-execution/bdeploy/cli.js --chains 1 --dry-run
 ```
 
-Confirms: RPC chainId match, CREATE2 factory present, keep vs would-deploy, mapping file written, `state.json` **not** updated on dry-run.
+Ethereum first run (nothing on-chain): **24 would-deploy + setExecutors would register 22**. Predicted router `0x0AFa92C9a9ae73a89e9AB241aAAC44b1AfF97aa0`. Mapping written. `state.json` stayed `{}`.
 
-### 7. Live catch-up deploy — not started
+**Bug found and fixed:** dry-run used `deployed: !dryRun`, so every line logged `keep` and the run printed “up to date”. Now logs `would-deploy` vs `keep`. Dry-run with empty router code used to skip `setExecutors`; now reports would-register all unique addrs.
+
+### 7. Live catch-up deploy — **next (blocked on PRIVATE_KEY)**
 
 One chain first (`--chains 1`), then a batch. Confirm:
 
@@ -153,22 +144,26 @@ One chain first (`--chains 1`), then a batch. Confirm:
 - Second run: “All chains up to date. No transactions sent.”
 - Mapping format matches user sample (array if multiple labels, object if one; checksummed official keys)
 
+Dry-run mapping already matches that shape (`uniswap_v3`+`pancakeswap_v3` array; `native_wrapper` object). FeeCalculator not in mapping.
+
 ---
 
 ## Known issues / traps for the next AI
 
-- **`npm install` was killed.** Do not assume `node_modules` exists. `deps.js` loads ethers from `crates/tycho-execution/contracts/node_modules`.
-- **`chains.js` parser:** first version captured only the first network block. Current version: `extractObjectBlock` + per-entry `chainId`. Verify before trusting `--chains` omitted (all networks).
+- **`PRIVATE_KEY` is required for live deploy.** Not in env, not in any `.env` on this account. Do not hunt through the filesystem for keys.
+- **forge** lives at `$HOME/.foundry/bin` (foundryup v1.7.1). Overlay now prepends that dir. Login shells may already have it via `.bashrc`.
+- **`npm install` is done** for `quartycho`. `node_modules` is gitignored.
 - **Do not `require()` `deploy-executors.js`.** It `require("hardhat")`. Inventory parses the source text.
 - **TychoRouter constructor** reverts if `feeCalculator.code.length == 0`. Always deploy/keep FeeCalculator first. `eth_call` of router initcode for runtime compare will revert if the calculator is not on-chain yet — `compare.js` already catches that and falls back to CREATE2 predict.
 - **CREATE2 `msg.sender`** is the factory, not the wallet. FeeCalculator sets `_routerFeeReceiver = msg.sender` (same as official CREATE2 deploys). Roles still go to the signer via ctor args.
-- **Permit2** hardcoded `0x000000000022D473030F116dDEE9F6B43aC78BA3` — must exist on the target chain (official deploys assume it).
-- **Arachnid CREATE2 factory** must already be at `0x4e59…`. If missing, that chain fails.
+- **Permit2** hardcoded `0x000000000022D473030F116dDEE9F6B43aC78BA3` — confirmed present on chain 1 (9152 bytes).
+- **Arachnid CREATE2 factory** confirmed present on chain 1.
 - **`setExecutors` is `whenNotPaused`.** New router starts unpaused.
 - **`ExecutorAlreadyExists`** if you re-pass an active executor — register path filters via timestamp.
 - Overlay DELAY patch is an exact string match on `= 3 days;`. If upstream changes that line, `overlay.js` throws on purpose.
-- `bdeploy/.overlay/` and `bdeploy/out/` are gitignored.
+- `bdeploy/.overlay/`, `bdeploy/out/`, `bdeploy/latest.mapping.js` are gitignored.
 - No Solidity tests were added; this is a Node orchestrator.
+- Uncommitted JS fixes this session are required for a truthful dry-run / live log. Commit them with the live-run results if the user asks.
 
 ---
 
@@ -197,6 +192,8 @@ const CUSTOM_EXECUTOR_MAPPING = {
 User’s original sample used a single `CUSTOM_TYCHO_ROUTER` string. Locked as per-chain object because FeeCalculator addr is a router ctor arg (addresses may still coincide across chains when initcode matches).
 
 Include `native_wrapper` and every official label. Do not put FeeCalculator in the pretty mapping.
+
+Ethereum dry-run predicted router: `0x0AFa92C9a9ae73a89e9AB241aAAC44b1AfF97aa0`.
 
 ---
 

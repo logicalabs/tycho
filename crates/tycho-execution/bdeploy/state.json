@@ -1,1 +1,514 @@
-{}
+{
+  "base": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0x9bA632d83e9eF57571256Cf4cc951b8aF1158e9C",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0x9f67fb6688f58d82fb08684017658c4932df7aaec0263cb9fd92ba725fd76e41"
+    },
+    "executors": {
+      "0x321C00604355DD20A2CB472D44fe8f37d821A82c": {
+        "labels": [
+          "uniswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0xBf9B925b6f5F6a5919F70e62D56403948F27F882": {
+        "labels": [
+          "uniswap_v3",
+          "pancakeswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0x78db9684220541601E9215bB16b219e5DF6cF0fb": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x498581ff718922c3f8e6a244956af099b2652b2b",
+          "0x631352Aaa9d6554848aF674106bCD8Bb9E59a5CF"
+        ],
+        "bdeployAddress": "0xdA3865B773C4152931fC58C6363b0d4dd05b5029",
+        "runtimeCodeHash": "0xa1f599f9624a774fc51d9d9612a92c995ec4c18e79055dccff97686e1f9260ab"
+      },
+      "0xF35839C54A33FE88867ACB3deac9dB3AdB9bFA78": {
+        "labels": [
+          "rfq:bebop"
+        ],
+        "contract": "BebopExecutor",
+        "args": [
+          "0xbbbbbBB520d69a9775E85b458C58c648259FAD5F",
+          "0xBeb0009ACa35087ce7cCF11637E24dd1Aad3bf2A"
+        ],
+        "bdeployAddress": "0xe22cC70C72abc5Fadc4Be751d5CDf7935eF084d7",
+        "runtimeCodeHash": "0xb7983f99875beb4e40077a727cb5cf0f69a16402900b6ef725b3b832851b1952"
+      },
+      "0xE12eb9FcD93c7ffabfEd66B20D4B0dF02b44F6B3": {
+        "labels": [
+          "aerodrome_slipstreams"
+        ],
+        "contract": "SlipstreamsExecutor",
+        "args": [],
+        "bdeployAddress": "0xfc358f92e8c06e1eb13F2e8851736E6cAEeb9D4B",
+        "runtimeCodeHash": "0x3a197950a5414655716301932c44f3797aeccd057a1c78abd2fef10b509ebe62"
+      },
+      "0x76eeB7E737FDf441E0437F7051b4e0b84808c10a": {
+        "labels": [
+          "aerodrome_v1"
+        ],
+        "contract": "AerodromeV1Executor",
+        "args": [],
+        "bdeployAddress": "0xea477cA432ce8b37f111eaaF2EcDd0b7d61fAE7E",
+        "runtimeCodeHash": "0xdbeb427f641b27664423d04dfb8371d7ef2d6689e91b3eb2fe1e5aad5d58d0bf"
+      },
+      "0x68AF9cDcc2e177e9D75c60f132b8DC52EAF1adBf": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x4200000000000000000000000000000000000006"
+        ],
+        "bdeployAddress": "0xE2A543A91af87fF7a912b7Fd74ba65f86505063c",
+        "runtimeCodeHash": "0xe121326ecbde654ad7861cacc41266880f57f6ea0870263b6c02493420abb130"
+      },
+      "0xf435299a20c1405c957C3F407cc3E9b9df76ee7b": {
+        "labels": [
+          "lunarbase"
+        ],
+        "contract": "LunarBaseExecutor",
+        "args": [],
+        "bdeployAddress": "0x083e51ad5985f6b04D52074dC6Fe62Bd6B9919D4",
+        "runtimeCodeHash": "0x7be692853c733ec2f9fe7872374a09c5e9e89a528178a709cc6a17a7c460970d"
+      },
+      "0xb8644a264a4b765E60C4A65Fb8049EAE1A791D97": {
+        "labels": [
+          "rfq:metric"
+        ],
+        "contract": "MetricExecutor",
+        "args": [
+          "0x681E908B8ab57c49C74D770F369754CCC3E1ae09"
+        ],
+        "bdeployAddress": "0x63Dc169078642fD68aeE58a39157Cc57Ef996823",
+        "runtimeCodeHash": "0xee6a70e93cbd42fcf954b70dd46211f2a54be81aa3016a07dad0c0de8148fe46"
+      }
+    }
+  },
+  "unichain": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0xa0498D0Fa4081c9a735b137a2E6A1910FaA0E0bC",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0xea1c8950830433ea683088844cff72cc56ff07b2af350cc8e8a787b82f37a95a"
+    },
+    "executors": {
+      "0x55345739FCB5c5393f9BE32864439754649A204A": {
+        "labels": [
+          "uniswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0x0847Ec6467499a6F31FDd06B7dEB766649B2739B": {
+        "labels": [
+          "uniswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0x3AE67e7DCFa6c5aB36DA9dE3B67B7496956E0874": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x1f98400000000000000000000000000000000004",
+          "0x0000000aa232009084Bd71A5797d089AA4Edfad4"
+        ],
+        "bdeployAddress": "0x6b49873CF03d13f8B53505a9f723cf2Bcee44389",
+        "runtimeCodeHash": "0x80d0336a11cd6b5ca6a0b7a375f7e7866eee7f4b9def094e546baac6f8e165b8"
+      },
+      "0x685733eDB7654e540aB537eabC28b554646b69d0": {
+        "labels": [
+          "vm:curve"
+        ],
+        "contract": "CurveExecutor",
+        "args": [
+          "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+          "0x0000000000000000000000000000000000000000"
+        ],
+        "bdeployAddress": "0x7828BEC152256ad9148207D571D1B1d5a91e36FC",
+        "runtimeCodeHash": "0x83cfe791285f304235ea7c56afbb0448687bc931a8d81c0aa052738674c2cce0"
+      },
+      "0xd9Ee40C6895De968b41b96253970B48Fe852e5eF": {
+        "labels": [
+          "velodrome_slipstreams"
+        ],
+        "contract": "SlipstreamsExecutor",
+        "args": [],
+        "bdeployAddress": "0xfc358f92e8c06e1eb13F2e8851736E6cAEeb9D4B",
+        "runtimeCodeHash": "0x3a197950a5414655716301932c44f3797aeccd057a1c78abd2fef10b509ebe62"
+      },
+      "0x32Ed490Fb53cc66C3cBDdC74aB8B7088F11d6289": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x4200000000000000000000000000000000000006"
+        ],
+        "bdeployAddress": "0xE2A543A91af87fF7a912b7Fd74ba65f86505063c",
+        "runtimeCodeHash": "0xe121326ecbde654ad7861cacc41266880f57f6ea0870263b6c02493420abb130"
+      }
+    }
+  },
+  "robinhood": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0x345e48768a65Ae596ac6A2Aee71202753C4866F5",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0x3ddc32b7f7a3819a20fdae5d232701184eaa55325f8507ea946c165bea711292"
+    },
+    "executors": {
+      "0x81aFB56E21AB0744330ACf400E2A65e6B64D495E": {
+        "labels": [
+          "uniswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0x33E8602FeDD1215CB04c865C66648DbA5b81fb75": {
+        "labels": [
+          "uniswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0xe781c1869c9D8E60dDfcD8F8fb5213Ed8Ad07366": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+          "0x0000000aa232009084Bd71A5797d089AA4Edfad4"
+        ],
+        "bdeployAddress": "0x442c1894D4bAE3410e534BB12906FA9d5c1887FD",
+        "runtimeCodeHash": "0x9b79a67ce91d21cd7b955911bfd8f90848e2f59370c28911b6cbfe2a248e623b"
+      },
+      "0x6EAd915f443eB0f8758BE58aFE7eF2dF1e2B927F": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73"
+        ],
+        "bdeployAddress": "0x4A76c216a566daFF40373d9560c2036d98F2dF5A",
+        "runtimeCodeHash": "0x0d799db94f59d5adecadc5a0500e5bbd5b2a943387c9ffec9755efc1a4a41c68"
+      }
+    }
+  },
+  "bsc": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0x712d0213439d99e56eFe5453253C12131C4019C9",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0x543d850bd84bd0ecfa462d1ebcc953d2be894f0cce7b60b98b8f65eb18ac353a"
+    },
+    "executors": {
+      "0x450B4a643553912C9aF98dc8b9dB2eF989Fb1444": {
+        "labels": [
+          "uniswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0x0ECbE4a09eff3F4d054723720f60b55EE52bD99E": {
+        "labels": [
+          "pancakeswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          25
+        ],
+        "bdeployAddress": "0xa74d2DaE3563a80809586253B36C072ffEDA59ab",
+        "runtimeCodeHash": "0x2211bc748742a6371a6a95befefa7f66bed7ed7e0b44631fc2190f1de1e1c4d0"
+      },
+      "0x067fBaf88ee89DC2A4368c6DfF7237FF84522577": {
+        "labels": [
+          "uniswap_v3",
+          "pancakeswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0x925A1aE9494ec8d92C2900dCdd6ca9Ee621E10ed": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x28e2ea090877bf75740558f6bfb36a5ffee9e9df",
+          "0x0000000aa232009084Bd71A5797d089AA4Edfad4"
+        ],
+        "bdeployAddress": "0xbdCf00b8f1A9B1aF08c57DD649312EdC56e2Ae86",
+        "runtimeCodeHash": "0x8c2a0d1956c9a081479bb61720987772c75fc1d05bc27e678a80ed5211269f39"
+      },
+      "0x8c41B3842D767Bb07818E9E82fB62964910a82Ef": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+        ],
+        "bdeployAddress": "0xCc35d54F6a381d99c337bdf3cF97E7730203693d",
+        "runtimeCodeHash": "0x9e58fe0eb902950d81100eb4bb1cfa4888d0fddbc0ba9cfc8516adad7574cd52"
+      },
+      "0x8A61866f7F9c979beE4426247e144aDD46cD21Aa": {
+        "labels": [
+          "rfq:metric"
+        ],
+        "contract": "MetricExecutor",
+        "args": [
+          "0x681E908B8ab57c49C74D770F369754CCC3E1ae09"
+        ],
+        "bdeployAddress": "0x63Dc169078642fD68aeE58a39157Cc57Ef996823",
+        "runtimeCodeHash": "0xee6a70e93cbd42fcf954b70dd46211f2a54be81aa3016a07dad0c0de8148fe46"
+      }
+    }
+  },
+  "polygon": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0x0C85409014d6c8cAEF60C837198c931246BD6296",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0x2eed87b8013d8cc5e44ac6a7d5fa65f81d967991541064b145276740aa2ba52a"
+    },
+    "executors": {
+      "0xb9f140F4f8d674c453b3Ee00646189452a74E10c": {
+        "labels": [
+          "uniswap_v2",
+          "quickswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0x4C409a96DE96E06f061cE55B15Cd318D3Dd2239c": {
+        "labels": [
+          "uniswap_v3",
+          "ramses_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0x32bB33AfB193e16df121cdc2D87c44f015D325DA": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x67366782805870060151383f4bbff9dab53e5cd6",
+          "0x0000000aa232009084Bd71A5797d089AA4Edfad4"
+        ],
+        "bdeployAddress": "0x66Fe3b56AC13b75D2B5954F807AD6018B78fF9f7",
+        "runtimeCodeHash": "0xee9c3bd58b6bd8e583e9ac8d61d2dc257cdda7c5374a992f4b4b4e5d3a3ed9dc"
+      },
+      "0xc8f2a896D6d98B325889CE9c998F62779d17FeE3": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"
+        ],
+        "bdeployAddress": "0xc1077f2615ead7f64cA967a869e9f6D7Bd57cd46",
+        "runtimeCodeHash": "0x1fb41dcb4f773023f076b6b97112f35498d43f77d1f98f0c0b59f8cef0ae4dfa"
+      },
+      "0x746Cdaf8Ef08A9d023155Dddc95291Ab8C9A7936": {
+        "labels": [
+          "rfq:metric"
+        ],
+        "contract": "MetricExecutor",
+        "args": [
+          "0x681E908B8ab57c49C74D770F369754CCC3E1ae09"
+        ],
+        "bdeployAddress": "0x63Dc169078642fD68aeE58a39157Cc57Ef996823",
+        "runtimeCodeHash": "0xee6a70e93cbd42fcf954b70dd46211f2a54be81aa3016a07dad0c0de8148fe46"
+      }
+    }
+  },
+  "arbitrum": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0x8A8Ba3973C84252BF7D357E4C0244b7EedB8B658",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0x97fa707cd8388199653aecec761b82917c6b2bd2d699329615bde39a7fd09d13"
+    },
+    "executors": {
+      "0xd0a1F74D4d77834FeCa0eFA01cA6E0161dBf1F57": {
+        "labels": [
+          "uniswap_v2"
+        ],
+        "contract": "UniswapV2Executor",
+        "args": [
+          30
+        ],
+        "bdeployAddress": "0xeb2855e62432aA28f7B465E65068eff7e7097232",
+        "runtimeCodeHash": "0x5f29b01d61995085a0c98c55f59081de7521e920a666a73d1594cc400789c89f"
+      },
+      "0xCaAac0C6193E3e2e3E8E94bAf6367F75BaE591C9": {
+        "labels": [
+          "uniswap_v3",
+          "pancakeswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0xdb696336F7A5F9048252664A3475C194dAe0e62f": {
+        "labels": [
+          "uniswap_v4"
+        ],
+        "contract": "UniswapV4Executor",
+        "args": [
+          "0x360e68faccca8ca495c1b759fd9eee466db9fb32",
+          "0x0000000aa232009084Bd71A5797d089AA4Edfad4"
+        ],
+        "bdeployAddress": "0x8a009E807793E851B1C0bb7E9C60DE9f934aa54a",
+        "runtimeCodeHash": "0x99ea83924c5eece3d877d93bcab35b4a25da33a43b76d62487b0ed825a566e76"
+      },
+      "0x117ABa0Cc2fC158318cC5640A3F8da0C426cD4ab": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+        ],
+        "bdeployAddress": "0xA5616C24Fb7534a7f1c93D692d6D8aFbeEF16981",
+        "runtimeCodeHash": "0x0a531bce3ba85e82e66c92564f3d9a211a2d8a9165d06404817527778f64734e"
+      },
+      "0xCe5af637bFfe0C34A37f34471Ab6a3E90adf8Ffb": {
+        "labels": [
+          "rfq:metric"
+        ],
+        "contract": "MetricExecutor",
+        "args": [
+          "0x681E908B8ab57c49C74D770F369754CCC3E1ae09"
+        ],
+        "bdeployAddress": "0x63Dc169078642fD68aeE58a39157Cc57Ef996823",
+        "runtimeCodeHash": "0xee6a70e93cbd42fcf954b70dd46211f2a54be81aa3016a07dad0c0de8148fe46"
+      }
+    }
+  },
+  "plasma": {
+    "feeCalculator": {
+      "bdeployAddress": "0x73D80545Ea62C0B1A824435928f962Ef46a1Eeab",
+      "runtimeCodeHash": "0x3e8401aae0fff09e24bf62788b1b3f8c796e99c86dd90b4b856b2d53f51cc149"
+    },
+    "router": {
+      "officialAddress": "0xa7df4a8EeCA477c8A869fB5A6578A3D39AbE9A18",
+      "bdeployAddress": "0x62c492b951c432Afa33DF7f0210F5E5c5c45e4d4",
+      "runtimeCodeHash": "0xf764b172f6cf84e958f588c13d091a9e2b2cf169b1c0ffa961d0d7d0dce0f57e"
+    },
+    "executors": {
+      "0xA6D43EFEc7870ac6e27c81232C2B5E11b17d40d4": {
+        "labels": [
+          "uniswap_v3"
+        ],
+        "contract": "UniswapV3Executor",
+        "args": [],
+        "bdeployAddress": "0x7fEf9119DB9C46E4c54AcB1ceC43930Eb04aa433",
+        "runtimeCodeHash": "0x48c1e73aed59c2b4f24c70ddd1669846ff6c32488b42bb8d9d36f4524dd81e37"
+      },
+      "0x5020a5012cDC3545d2E98B6fb3EA4b9dc90552a6": {
+        "labels": [
+          "fluid_v1"
+        ],
+        "contract": "FluidV1Executor",
+        "args": [
+          "0x52Aa899454998Be5b000Ad077a46Bbe360F4e497"
+        ],
+        "bdeployAddress": "0xe33C15d2226b0D1bB28c21687a6Fa633c6b4762D",
+        "runtimeCodeHash": "0x4f933621e3dd203b7d833aef9a5140fc5503bc4d7e60a1253d5513103f860b49"
+      },
+      "0xC015Bc2f482b6CF31D6C30e663a57417A6761949": {
+        "labels": [
+          "vm:curve"
+        ],
+        "contract": "CurveExecutor",
+        "args": [
+          "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+          "0x0000000000000000000000000000000000000000"
+        ],
+        "bdeployAddress": "0x7828BEC152256ad9148207D571D1B1d5a91e36FC",
+        "runtimeCodeHash": "0x83cfe791285f304235ea7c56afbb0448687bc931a8d81c0aa052738674c2cce0"
+      },
+      "0x1D9220eA65cA79997C532ba8fbC79b1c463Bd505": {
+        "labels": [
+          "native_wrapper"
+        ],
+        "contract": "NativeWrapExecutor",
+        "args": [
+          "0x6100E367285b01F48D07953803A2d8dCA5D19873"
+        ],
+        "bdeployAddress": "0x7B91523928cC99ac9e37bf3A897E340d1CfF9900",
+        "runtimeCodeHash": "0x79418a7f6a80ca940b698a9a81b8a37bd38ac1652fc0fa50cd41823a24e49b9d"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const {loadDotenv, loadEthers} = require("./deps");
 loadDotenv();
+const {resolveSignerKey, wrapKeyFromArgv} = require("./secret");
 
 const {RPC, PERMIT2} = require("./paths");
 const {resolveChains, isDryRun} = require("./chains");
@@ -9,6 +10,7 @@ const {prepareOverlay, compileOverlay, loadArtifact} = require("./overlay");
 const {decide, saltFor, isEmptyCode, codeHash} = require("./compare");
 const {assertCreate2Factory, getInitcode, create2Deploy} = require("./deploy");
 const {setExecutors} = require("./register");
+const {feeOverrides, describeFees} = require("./gas");
 const {writeMapping} = require("./mapping");
 const {loadState, saveState, networkState} = require("./state");
 
@@ -22,10 +24,12 @@ function printHelp() {
 Usage:
   node bdeploy/cli.js --chains 1,8453,130
   node bdeploy/cli.js --chains 1 --dry-run
+  node bdeploy/cli.js --wrap-key <hex>   # wrap plaintext into crates/tycho-execution/.env
   node bdeploy/cli.js              # all official Hardhat chain IDs
 
 RPC:            http://localhost:2424/<chainid>
-Signer:         PRIVATE_KEY env
+Signer:         wrapped PRIVATE_KEY in crates/tycho-execution/.env
+                node bdeploy/cli.js --wrap-key <hex>   # writes wrapped blob
 Overlay:        DELAY_EXECUTOR_ACTIVATION=0, bool private constant bdeploy=true
 `);
 }
@@ -56,8 +60,12 @@ async function ensureContract({
             address: decision.address,
             runtimeCodeHash: decision.runtimeCodeHash,
             deployed: false,
+            needed: false,
             label,
         };
+    }
+    if (!dryRun) {
+        console.log(`    CREATE2 ${label}...`);
     }
     const deployed = await create2Deploy({
         wallet,
@@ -73,17 +81,39 @@ async function ensureContract({
         address: deployed.address,
         runtimeCodeHash,
         deployed: !dryRun,
+        needed: true,
         label,
     };
+}
+
+function deployVerb(result, dryRun) {
+    if (!result.needed) {
+        return "keep";
+    }
+    return dryRun ? "would-deploy" : "deploy";
 }
 
 async function runChain({chain, wallet, artifacts, state, dryRun}) {
     const {chainId, name} = chain;
     const ns = networkState(state, name);
     const inventory = buildInventory(name);
-    const summary = {txs: 0, deployed: [], kept: [], setExecutors: []};
+    const summary = {
+        txs: 0,
+        needed: 0,
+        deployed: [],
+        kept: [],
+        setExecutors: [],
+    };
 
     await assertCreate2Factory(wallet.provider, chainId);
+
+    if (!dryRun) {
+        log(
+            name,
+            chainId,
+            describeFees(await feeOverrides(wallet.provider))
+        );
+    }
 
     const signerAddr = await wallet.getAddress();
 
@@ -99,11 +129,14 @@ async function runChain({chain, wallet, artifacts, state, dryRun}) {
     log(
         name,
         chainId,
-        `FeeCalculator: ${feeResult.deployed ? "deploy" : "keep"} ${feeResult.address}`
+        `FeeCalculator: ${deployVerb(feeResult, dryRun)} ${feeResult.address}`
     );
-    if (feeResult.deployed) {
-        summary.txs++;
+    if (feeResult.needed) {
+        summary.needed++;
         summary.deployed.push("FeeCalculator");
+        if (feeResult.deployed) {
+            summary.txs++;
+        }
     } else {
         summary.kept.push("FeeCalculator");
     }
@@ -129,13 +162,17 @@ async function runChain({chain, wallet, artifacts, state, dryRun}) {
         log(
             name,
             chainId,
-            `${group.contract} (${group.labels.join(", ")}): ${
-                result.deployed ? "deploy" : "keep"
-            } ${result.address}`
+            `${group.contract} (${group.labels.join(", ")}): ${deployVerb(
+                result,
+                dryRun
+            )} ${result.address}`
         );
-        if (result.deployed) {
-            summary.txs++;
+        if (result.needed) {
+            summary.needed++;
             summary.deployed.push(group.contract);
+            if (result.deployed) {
+                summary.txs++;
+            }
         } else {
             summary.kept.push(group.contract);
         }
@@ -175,13 +212,16 @@ async function runChain({chain, wallet, artifacts, state, dryRun}) {
     log(
         name,
         chainId,
-        `TychoRouterV3: ${routerResult.deployed ? "deploy" : "keep"} ${
+        `TychoRouterV3: ${deployVerb(routerResult, dryRun)} ${
             routerResult.address
         }`
     );
-    if (routerResult.deployed) {
-        summary.txs++;
+    if (routerResult.needed) {
+        summary.needed++;
         summary.deployed.push("TychoRouterV3");
+        if (routerResult.deployed) {
+            summary.txs++;
+        }
     } else {
         summary.kept.push("TychoRouterV3");
     }
@@ -200,15 +240,24 @@ async function runChain({chain, wallet, artifacts, state, dryRun}) {
             dryRun,
         });
         if (reg.dryRun) {
-            log(
-                name,
-                chainId,
-                reg.addresses.length > 0
-                    ? `setExecutors: would register ${reg.addresses.length}`
-                    : "setExecutors: all executors already registered"
-            );
+            if (reg.addresses.length > 0) {
+                summary.needed++;
+                summary.setExecutors = reg.addresses;
+                log(
+                    name,
+                    chainId,
+                    `setExecutors: would register ${reg.addresses.length}`
+                );
+            } else {
+                log(
+                    name,
+                    chainId,
+                    "setExecutors: all executors already registered"
+                );
+            }
         } else if (reg.sent) {
             summary.txs++;
+            summary.needed++;
             summary.setExecutors = reg.addresses;
             log(
                 name,
@@ -230,8 +279,16 @@ async function runChain({chain, wallet, artifacts, state, dryRun}) {
         }
     }
 
-    if (summary.txs === 0) {
+    if (summary.needed === 0) {
         log(name, chainId, "up to date — no transactions sent");
+    } else if (dryRun) {
+        log(
+            name,
+            chainId,
+            `dry-run — would send ${summary.needed} tx(s): ${
+                summary.deployed.join(", ") || "(none)"
+            }`
+        );
     } else {
         log(
             name,
@@ -251,14 +308,14 @@ async function main() {
         printHelp();
         return;
     }
+    if (wrapKeyFromArgv(argv)) {
+        return;
+    }
 
     const dryRun = isDryRun(argv);
     const chains = resolveChains(argv);
     const ethers = loadEthers();
-
-    if (!dryRun && !process.env.PRIVATE_KEY) {
-        throw new Error("PRIVATE_KEY is required (or pass --dry-run)");
-    }
+    const signerKey = resolveSignerKey({dryRun});
 
     console.log(
         `bdeploy: overlay compile, then ${chains
@@ -291,7 +348,11 @@ async function main() {
     const results = await Promise.all(
         chains.map(async (chain) => {
             const provider = new ethers.providers.StaticJsonRpcProvider(
-                RPC(chain.chainId),
+                {
+                    url: RPC(chain.chainId),
+                    timeout: 45_000,
+                    throttleLimit: 1,
+                },
                 chain.chainId
             );
             const net = await provider.getNetwork();
@@ -300,10 +361,7 @@ async function main() {
                     `RPC ${RPC(chain.chainId)} reported chainId ${net.chainId}`
                 );
             }
-            const wallet = new ethers.Wallet(
-                process.env.PRIVATE_KEY || dummyKey,
-                provider
-            );
+            const wallet = new ethers.Wallet(signerKey || dummyKey, provider);
             try {
                 const result = await runChain({
                     chain,
@@ -324,7 +382,7 @@ async function main() {
 
     const routers = {};
     const executorsByChain = {};
-    let anyTx = false;
+    let anyNeeded = false;
     let failures = 0;
     for (const item of results) {
         if (!item.ok) {
@@ -333,8 +391,8 @@ async function main() {
         }
         routers[item.chain.name] = item.result.router.address;
         executorsByChain[item.chain.name] = item.result.executorResults;
-        if (item.result.summary.txs > 0) {
-            anyTx = true;
+        if (item.result.summary.needed > 0) {
+            anyNeeded = true;
         }
     }
 
@@ -346,8 +404,10 @@ async function main() {
     console.log(`mapping: ${files.stamped}`);
     console.log(`mapping: ${files.latestRoot}`);
 
-    if (failures === 0 && !anyTx) {
+    if (failures === 0 && !anyNeeded) {
         console.log("All chains up to date. No transactions sent.");
+    } else if (failures === 0 && dryRun) {
+        console.log("Dry-run complete. No transactions sent.");
     } else if (failures === 0) {
         console.log("Differential deploy complete.");
     }

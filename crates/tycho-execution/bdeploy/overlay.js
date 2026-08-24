@@ -89,11 +89,21 @@ function prepareOverlay() {
     return OVERLAY;
 }
 
+function forgeEnv() {
+    const foundryBin = path.join(process.env.HOME || "", ".foundry", "bin");
+    const PATH = process.env.PATH || "";
+    if (!foundryBin || PATH.split(path.delimiter).includes(foundryBin)) {
+        return process.env;
+    }
+    return {...process.env, PATH: `${foundryBin}${path.delimiter}${PATH}`};
+}
+
 function compileOverlay() {
     const result = spawnSync("forge", ["build"], {
         cwd: OVERLAY,
         stdio: "inherit",
         encoding: "utf8",
+        env: forgeEnv(),
     });
     if (result.status !== 0) {
         throw new Error("forge build of overlay sources failed");
