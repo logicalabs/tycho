@@ -1,0 +1,19 @@
+
+differential catchup deploy - you should be able to run this over and over until it says everything is deployed
+(ie in case a deploy fails or times out or whatever. common on mainnet etc)
+
+node crates/tycho-execution/bdeploy/cli.js --chains 1,130,8453,42161,130,56,9745,137
+
+
+add new chains obv as needed
+
+system should automatically customize the contracts "on the wire" for you - so you should not need to modify any .sol
+
+it should detect & deploy new executors, including registering them on the router via set executors as needed
+
+when script is done & fully happy, it should produce this file for you to copy/paste into wallfacer fynd.ts:
+
+/home/quartycho/dev/tycho/crates/tycho-execution/bdeploy/latest.mapping.js
+
+NOTE: fynd is running on NM2 in stock deployments with our api key. no customization. wallfacer uses the mapping to take the stock payload
+and substitute in our custom contracts from here
